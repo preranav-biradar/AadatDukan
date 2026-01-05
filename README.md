@@ -86,14 +86,14 @@ Daily interactions between farmers and traders ensure produce reaches the **righ
 
 <p align="center">
   <img src="frontend/public/s1.png" width="30%" />
-  <img src="public/s2.png" width="30%" />
-  <img src="public/s3.png" width="30%" />
+  <img src="frontend/public/s2.png" width="30%" />
+  <img src="frontend/public/s3.png" width="30%" />
 </p>
 
 <p align="center">
-  <img src="public/s4.png" width="30%" />
-  <img src="public/s5.png" width="30%" />
-  <img src="public/s6.png" width="30%" />
+  <img src="frontend/public/s4.png" width="30%" />
+  <img src="frontend/public/s5.png" width="30%" />
+  <img src="frontend/public/s6.png" width="30%" />
 </p>
 
 ---
