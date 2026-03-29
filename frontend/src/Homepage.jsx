@@ -21,8 +21,9 @@ export default function HomePage() {
     "/d2.jpeg",
     "/d3.jpeg",
     "/d4.jpeg",
-    "/d5.jpeg",
-    "/d6.jpeg",
+    "/d7.jpg",
+    "/d8.webp",
+   
   ];
   // gallery refs and active state to highlight clicked image (no scroll-driven activation)
   const galleryRef = useRef(null);
@@ -265,7 +266,7 @@ export default function HomePage() {
         </button>
 
         {/* Right side: Nav links + Login */}
-        <div className={`nav-links ${menuOpen ? "open" : ""}`} style={{ display: "flex", gap: 20, alignItems: "center" }}>
+        <div className={`nav-links ${menuOpen ? "open" : ""}`}>
           <ScrollLink
             to="home"
             smooth
@@ -341,7 +342,7 @@ export default function HomePage() {
       {/* Responsive CSS overrides for mobile (preserve desktop) */}
       <style>{`
         html,body,#root { scroll-behavior: smooth; }
-        .top-nav .nav-links { gap: 20px; }
+        .top-nav .nav-links { display: flex; gap: 20px; align-items: center; }
         .footer-quick-links li { margin-bottom: 6px; }
         .footer-quick-links a { color: #cbd5e1; text-decoration: none; }
         .team-card-wrapper { box-sizing: border-box; }
@@ -357,9 +358,9 @@ export default function HomePage() {
           /* top nav */
           .top-nav { padding: 12px 16px !important; }
           .menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
-          .nav-links { display: none; position: absolute; right: 16px; top: 60px; background: rgba(2,6,23,0.96); padding: 12px 14px; border-radius: 8px; flex-direction: column; min-width: 160px; }
-          .nav-links.open { display: flex; }
-          .nav-links a { padding: 8px 6px; }
+          .top-nav .nav-links { display: none; position: absolute; right: 16px; top: 60px; background: rgba(2,6,23,0.96); padding: 12px 14px; border-radius: 8px; flex-direction: column; min-width: 160px; }
+          .top-nav .nav-links.open { display: flex; }
+          .top-nav .nav-links a { padding: 8px 6px; }
 
           /* hero */
           header { height: auto !important; padding: 40px 18px !important; }
