@@ -23,7 +23,7 @@ export default function HomePage() {
     "/d4.jpeg",
     "/d7.jpg",
     "/d8.webp",
-   
+
   ];
   // gallery refs and active state to highlight clicked image (no scroll-driven activation)
   const galleryRef = useRef(null);
@@ -100,18 +100,18 @@ export default function HomePage() {
 
   // Hero section full-screen
   const hero = {
-    width: "100vw",
-    marginLeft: "calc(50% - 50vw)",
-    height: "100vh",
+    width: "100%",
+    minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     color: "#fff",
     textAlign: "center",
-    backgroundImage: `linear-gradient(rgba(15,23,42,0.6), rgba(15,23,42,0.6)), url(/dukan.jpg)`,
+    backgroundImage: `linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.7)), url(/dukan.jpg)`,
     backgroundSize: "cover",
     backgroundPosition: "center",
+    paddingTop: "60px",
   };
 
   // Animated Counter Hook
@@ -150,12 +150,18 @@ export default function HomePage() {
   };
 
   const stat = {
-    background: "#fff",
-    color: "#111827",
-    padding: "22px 28px",
-    borderRadius: 10,
-    minWidth: 180,
-    boxShadow: "0 8px 24px rgba(2,6,23,0.08)",
+    background: "rgba(255, 255, 255, 0.08)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    color: "#ffffff",
+    padding: "24px 32px",
+    borderRadius: "16px",
+    minWidth: "160px",
+    flex: "1 1 160px",
+    maxWidth: "240px",
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
+    transition: "transform 0.3s ease, background 0.3s ease",
   };
 
   const sectionStyle = {
@@ -228,11 +234,12 @@ export default function HomePage() {
   return (
     <div
       style={{
-        width: "112%",
+        width: "100%",
+        maxWidth: "100vw",
         overflowX: "hidden",
         margin: 0,
         padding: 0,
-        background: "#111",
+        background: "#0a0a0a",
       }}
     >
       <nav className="top-nav"
@@ -353,7 +360,7 @@ export default function HomePage() {
 
         @media (max-width: 900px) {
           /* page container */
-          div[style*="width: \"112%\""] { width: 100% !important; }
+          div[style*="width: \"100%\""] { width: 100% !important; }
 
           /* top nav */
           .top-nav { padding: 12px 16px !important; }
@@ -363,28 +370,48 @@ export default function HomePage() {
           .top-nav .nav-links a { padding: 8px 6px; }
 
           /* hero */
-          header { height: auto !important; padding: 40px 18px !important; }
-          header h1 { font-size: 26px !important; }
-          header p { font-size: 15px !important; }
+          header { height: auto !important; padding: 70px 18px 40px !important; min-height: 80vh !important; }
+          header h1 { font-size: 28px !important; line-height: 1.1 !important; margin-top: 10px !important; }
+          header p { font-size: 15px !important; max-width: 90%; margin-left: auto; margin-right: auto; margin-top: 8px !important; }
+          .stats-container { gap: 10px !important; margin-top: 24px !important; }
+          .stat-card { padding: 16px 12px !important; min-width: 130px !important; flex: 1 1 40% !important; }
+          .stat-card div:first-of-type { font-size: 18px !important; }
+          .stat-card div:last-of-type { font-size: 12px !important; margin-top: 4px !important; }
+
+          /* culture section */
+          .culture-panel { flex: 1 1 100% !important; max-width: none !important; padding: 32px 24px !important; }
+          .culture-panel h3 { font-size: 26px !important; }
+          .culture-panel p { font-size: 15px !important; }
 
           /* team cards stack */
-          .team-card-wrapper { width: 100% !important; max-width: none !important; padding: 12px !important; }
+          .team-card-wrapper { width: 100% !important; max-width: none !important; padding: 15px !important; gap: 12px !important; }
+          .team-card-wrapper h4 { font-size: 18px !important; }
+          .team-card-wrapper p { font-size: 14px !important; }
+          .team-card-wrapper > div:first-of-type { width: 80px !important; height: 80px !important; }
+
+          /* workplace gallery adjustments */
           .workplace-gallery { flex-wrap: wrap !important; gap: 12px !important; }
-          .workplace-gallery > div { width: calc(50% - 12px) !important; height: 160px !important; }
+          .workplace-gallery > div { width: calc(50% - 6px) !important; height: 150px !important; }
 
-          /* blog gallery adjustments */
-          .blog-gallery { gap: 12px !important; padding-bottom: 6px !important; }
-          .blog-card { min-width: 200px !important; height: 200px !important; }
-
-          /* contact form */
-          .contact-form { width: 100% !important; }
-          .contact-form input, .contact-form textarea { font-size: 15px !important; }
+          /* footer / contact adjustments */
+          .footer-grid { gap: 30px !important; }
+          .footer-grid > div { flex: 1 1 100% !important; min-width: 100% !important; }
+          .contact-form input, .contact-form textarea { 
+            font-size: 16px !important; 
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+          }
+          .contact-form input::placeholder, .contact-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+          }
         }
 
         @media (max-width: 420px) {
-          header h1 { font-size: 20px !important; }
-          header p { font-size: 13px !important; }
-          .workplace-gallery > div { width: 100% !important; }
+          header h1 { font-size: 24px !important; }
+          header p { font-size: 14px !important; }
+          .workplace-gallery > div { width: 100% !important; height: 200px !important; }
+          .footer-grid > div { text-align: left !important; }
         }
       `}</style>
 
@@ -411,26 +438,31 @@ export default function HomePage() {
             ></a>
           </div>
 
-          <div style={statsContainer}>
-            <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>
+          <div
+            className="stats-container"
+            style={{ ...statsContainer, padding: "0 10px" }}
+          >
+            <div className="stat-card" style={stat}>
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>
                 {formatNumber(happyCustomers)}+
               </div>
-              <div style={{ color: "#6b7280", marginTop: 6 }}>
+              <div style={{ color: "rgba(255,255,255,0.7)", marginTop: 4, fontSize: 14, fontWeight: 500, textTransform: "uppercase", letterSpacing: "1px" }}>
                 Happy Customers
               </div>
             </div>
-            <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>
+            <div className="stat-card" style={stat}>
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>
                 {formatNumber(markets)}+
               </div>
-              <div style={{ color: "#6b7280", marginTop: 6 }}>Markets</div>
+              <div style={{ color: "rgba(255,255,255,0.7)", marginTop: 4, fontSize: 14, fontWeight: 500, textTransform: "uppercase", letterSpacing: "1px" }}>
+                Markets
+              </div>
             </div>
-            <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>
+            <div className="stat-card" style={stat}>
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>
                 {formatNumber(partners)}+
               </div>
-              <div style={{ color: "#6b7280", marginTop: 6 }}>
+              <div style={{ color: "rgba(255,255,255,0.7)", marginTop: 4, fontSize: 14, fontWeight: 500, textTransform: "uppercase", letterSpacing: "1px" }}>
                 Trusted Partners
               </div>
             </div>
@@ -529,8 +561,9 @@ export default function HomePage() {
 
           {/* Right: yellow panel with culture bullets */}
           <div
+            className="culture-panel"
             style={{
-              flex: "0 0 420px",
+              flex: "1 1 420px",
               background: "#f8b739",
               padding: "48px 36px",
               display: "flex",
@@ -911,6 +944,7 @@ export default function HomePage() {
           </p>
 
           <div
+            className="workplace-gallery"
             style={{
               display: "flex",
               justifyContent: "center",
@@ -975,6 +1009,7 @@ export default function HomePage() {
         }}
       >
         <div
+          className="footer-grid"
           style={{
             maxWidth: 1100,
             margin: "0 auto",
@@ -1045,9 +1080,9 @@ export default function HomePage() {
                   Home
                 </ScrollLink>
               </li>
-            
-            
-             
+
+
+
               <li>
                 <ScrollLink to="about" smooth duration={500} offset={-80} style={{ color: "#cbd5e1", cursor: "pointer" }}>
                   About
@@ -1063,7 +1098,7 @@ export default function HomePage() {
 
           {/* Contact Details */}
           <div style={{ flex: 1, minWidth: 180 }}>
-           
+
             <div style={{ color: "#cbd5e1", lineHeight: 1.8 }}>
               <strong>Maharashtra (Office ):</strong>
               <div>Modha Road, Udgir – 413517</div>
@@ -1090,12 +1125,13 @@ export default function HomePage() {
                 placeholder="Your Name"
                 style={{
                   width: "100%",
-                  padding: "10px",
-                  marginBottom: 10,
-                  borderRadius: 6,
-                  border: "1px solid #334155",
-                  background: "#1e293b",
-                  color: "#e2e8f0",
+                  padding: "12px",
+                  marginBottom: 12,
+                  borderRadius: 8,
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  color: "#fff",
+                  outline: "none",
                 }}
               />
               <textarea
@@ -1105,12 +1141,13 @@ export default function HomePage() {
                 rows={5}
                 style={{
                   width: "100%",
-                  padding: "10px",
-                  marginBottom: 10,
-                  borderRadius: 6,
-                  border: "1px solid #334155",
-                  background: "#1e293b",
-                  color: "#e2e8f0",
+                  padding: "12px",
+                  marginBottom: 12,
+                  borderRadius: 8,
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  color: "#fff",
+                  outline: "none",
                 }}
               />
               <button
