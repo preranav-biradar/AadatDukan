@@ -1,15 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link as ScrollLink } from "react-scroll";
 import { Link as RouterLink } from "react-router-dom";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaCheckCircle, FaHeart, FaBolt, FaSmile } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedin,
+  FaCheckCircle,
+  FaHeart,
+  FaBolt,
+  FaSmile,
+} from "react-icons/fa";
 import { useInView } from "react-intersection-observer";
 export default function HomePage() {
-  const images = [
-    "/p1.jpg",
-    
-    
-    "/pream.jpg"
-  ];
+  const images = ["/p1.jpg", "/pream.jpg"];
 
   // dynamic blog gallery images (d1..d6 expected in public/)
   const blogImages = [
@@ -20,41 +24,63 @@ export default function HomePage() {
     "/d5.jpeg",
     "/d6.jpeg",
   ];
-
   // gallery refs and active state to highlight clicked image (no scroll-driven activation)
   const galleryRef = useRef(null);
   // -1 means no image is active (only click will set active)
   const [activeIdx, setActiveIdx] = useState(-1);
+  // mobile nav
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Hero Section marker will be rendered inside the returned JSX
 
   // translate vertical wheel into horizontal scroll for better UX and prevent visible scrollbar
   useEffect(() => {
     const container = galleryRef.current;
     if (!container) return;
     const onWheel = (e) => {
-      // Only intervene when vertical scroll is larger than horizontal
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      // Only attempt horizontal translation when vertical movement dominates
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (maxScroll <= 0) return; // nothing to scroll horizontally
+
+      // compute the intended next scrollLeft
+      const next = container.scrollLeft + e.deltaY;
+
+      // If the gallery can be moved in the wheel direction, intercept and translate
+      if (next > 0 && next < maxScroll) {
         e.preventDefault();
-        container.scrollLeft += e.deltaY;
+        container.scrollLeft = next;
+      } else if (next <= 0 && container.scrollLeft > 0) {
+        // moving left and gallery isn't already at leftmost
+        e.preventDefault();
+        container.scrollLeft = 0;
+      } else if (next >= maxScroll && container.scrollLeft < maxScroll) {
+        // moving right and gallery isn't already at rightmost
+        e.preventDefault();
+        container.scrollLeft = maxScroll;
       }
+      // otherwise don't preventDefault so the page can scroll vertically as usual
     };
-    container.addEventListener('wheel', onWheel, { passive: false });
-    return () => container.removeEventListener('wheel', onWheel);
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
   }, []);
 
-const teams = [
-  { 
-    name: "Virbhadra Biradar", 
-    role: "Founder & Manager", 
-    description: "Over 12 years of experience in agricultural trading and management, building strong relationships with farmers and local buyers.", 
-    img: images[0] 
-  },
-  { 
-    name: "Manmath Biradar", 
-    role: "Co-Manager", 
-    description: "Handles daily operations and customer engagement, ensuring smooth transactions and trust within the farming community.", 
-    img: images[1] 
-  }
-];
+  const teams = [
+    {
+      name: "Virbhadra Biradar",
+      role: "Founder & Manager",
+      description:
+        "Over 30 years of experience in agricultural trading and management, building strong relationships with farmers and local buyers.",
+      img: images[0],
+    },
+    {
+      name: "Manmath Biradar",
+      role: "Co-Manager",
+      description:
+        "Handles daily operations and customer engagement, ensuring smooth transactions and trust within the farming community.",
+      img: images[1],
+    },
+  ];
   // Navbar style
   const nav = {
     position: "fixed",
@@ -65,7 +91,7 @@ const teams = [
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-  padding: "14px 60px",
+    padding: "14px 60px",
     background: "rgba(15,23,42,0.95)",
     color: "#fff",
     width: "100%",
@@ -111,7 +137,7 @@ const teams = [
   // Stats Counters
   const happyCustomers = useAnimatedCounter(400000, 1200);
   const markets = useAnimatedCounter(25, 1000);
-  const partners = useAnimatedCounter(120, 1100);
+  const partners = useAnimatedCounter(900, 1100);
 
   const statsContainer = {
     display: "flex",
@@ -152,7 +178,8 @@ const teams = [
   };
 
   const teamCard = {
-    background: "linear-gradient(0deg, rgba(17,24,39,0.03), rgba(17,24,39,0.03))",
+    background:
+      "linear-gradient(0deg, rgba(17,24,39,0.03), rgba(17,24,39,0.03))",
     borderRadius: 10,
     overflow: "hidden",
     textAlign: "left",
@@ -169,7 +196,10 @@ const teams = [
 
   const formatNumber = (v) => {
     if (v >= 1000000) return (v / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (v >= 1000) return (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1).replace(/\.0$/, "") + "K";
+    if (v >= 1000)
+      return (
+        (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1).replace(/\.0$/, "") + "K"
+      );
     return v.toLocaleString();
   };
 
@@ -185,86 +215,109 @@ const teams = [
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    console.log("Contact submit:", { name: contactName, message: contactMessage });
+    console.log("Contact submit:", {
+      name: contactName,
+      message: contactMessage,
+    });
     alert("Thanks — your message was received (demo). We'll connect soon.");
     setContactName("");
     setContactMessage("");
   };
 
   return (
-    <div style={{ width: "112%", overflowX: "hidden", margin: 0, padding: 0, background: "#111" }}>
-   
-  <nav
+    <div
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "14px 60px",
-        background: "rgba(15,23,42,0.95)",
-        color: "#fff",
-        width: "100%",
-        boxSizing: "border-box",
+        width: "112%",
+        overflowX: "hidden",
+        margin: 0,
+        padding: 0,
+        background: "#111",
       }}
     >
-      {/* Left side: Logo */}
-      <div style={{ fontWeight: 800, letterSpacing: 0.3, fontSize: 20 }}>
-        🌾 Appa Aadat Dukan
-      </div>
+      <nav className="top-nav"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "14px 60px",
+          background: "rgba(15,23,42,0.95)",
+          color: "#fff",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* Left side: Logo */}
+        <div style={{ fontWeight: 800, letterSpacing: 0.3, fontSize: 20 }}>
+          🌾 Appa Aadat Dukan
+        </div>
+        {/* Mobile menu toggle */}
+        <button
+          className="menu-toggle"
+          aria-label="Toggle menu"
+          onClick={() => setMenuOpen((s) => !s)}
+        >
+          ☰
+        </button>
 
-      {/* Right side: Nav links + Login */}
-      <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-        <ScrollLink
-          to="home"
-          smooth
-          duration={500}
-          offset={-80}
-          style={{ color: "#fff", cursor: "pointer" }}
-        >
-          Home
-        </ScrollLink>
-        <ScrollLink
-          to="about"
-          smooth
-          duration={500}
-          offset={-80}
-          style={{ color: "#fff", cursor: "pointer" }}
-        >
-          About
-        </ScrollLink>
-        <ScrollLink
-          to="team"
-          smooth
-          duration={500}
-          offset={-80}
-          style={{ color: "#fff", cursor: "pointer" }}
-        >
-          Team
-        </ScrollLink>
-         <ScrollLink
-          to="aadat-blog"
-          smooth
-          duration={500}
-          offset={-80}
-          style={{ color: "#fff", cursor: "pointer" }}
-        >
-          Blog
-        </ScrollLink>
-         <ScrollLink
-          to="contact"
-          smooth
-          duration={500}
-          offset={-80}
-          style={{ color: "#fff", cursor: "pointer" }}
-        >
-          Contact
-        </ScrollLink>
+        {/* Right side: Nav links + Login */}
+        <div className={`nav-links ${menuOpen ? "open" : ""}`} style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <ScrollLink
+            to="home"
+            smooth
+            duration={500}
+            offset={-80}
+            onClick={() => setMenuOpen(false)}
+            style={{ color: "#fff", cursor: "pointer" }}
+          >
+            Home
+          </ScrollLink>
+          <ScrollLink
+            to="about"
+            smooth
+            duration={500}
+            offset={-80}
+            onClick={() => setMenuOpen(false)}
+            style={{ color: "#fff", cursor: "pointer" }}
+          >
+            About
+          </ScrollLink>
+          <ScrollLink
+            to="team"
+            smooth
+            duration={500}
+            offset={-80}
+            onClick={() => setMenuOpen(false)}
+            style={{ color: "#fff", cursor: "pointer" }}
+          >
+            Team
+          </ScrollLink>
+          <ScrollLink
+            to="aadat-blog"
+            smooth
+            duration={500}
+            offset={-80}
+            onClick={() => setMenuOpen(false)}
+            style={{ color: "#fff", cursor: "pointer" }}
+          >
+            Blog
+          </ScrollLink>
+          <ScrollLink
+            to="contact"
+            smooth
+            duration={500}
+            offset={-80}
+            onClick={() => setMenuOpen(false)}
+            style={{ color: "#fff", cursor: "pointer" }}
+          >
+            Contact
+          </ScrollLink>
 
-        {/* Login Button
+          {/* Login Button
         {!userName && (
           <RouterLink
             to="/login"
@@ -282,9 +335,57 @@ const teams = [
             Login
           </RouterLink>
         )} */}
-      </div>
-    </nav> 
-        
+        </div>
+      </nav>
+
+      {/* Responsive CSS overrides for mobile (preserve desktop) */}
+      <style>{`
+        html,body,#root { scroll-behavior: smooth; }
+        .top-nav .nav-links { gap: 20px; }
+        .footer-quick-links li { margin-bottom: 6px; }
+        .footer-quick-links a { color: #cbd5e1; text-decoration: none; }
+        .team-card-wrapper { box-sizing: border-box; }
+        .workplace-gallery > div { box-sizing: border-box; }
+        .blog-gallery { -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+        .blog-card { scroll-snap-align: center; }
+        .menu-toggle { display: none; background: transparent; border: none; color: #fff; font-size: 20px; }
+
+        @media (max-width: 900px) {
+          /* page container */
+          div[style*="width: \"112%\""] { width: 100% !important; }
+
+          /* top nav */
+          .top-nav { padding: 12px 16px !important; }
+          .menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
+          .nav-links { display: none; position: absolute; right: 16px; top: 60px; background: rgba(2,6,23,0.96); padding: 12px 14px; border-radius: 8px; flex-direction: column; min-width: 160px; }
+          .nav-links.open { display: flex; }
+          .nav-links a { padding: 8px 6px; }
+
+          /* hero */
+          header { height: auto !important; padding: 40px 18px !important; }
+          header h1 { font-size: 26px !important; }
+          header p { font-size: 15px !important; }
+
+          /* team cards stack */
+          .team-card-wrapper { width: 100% !important; max-width: none !important; padding: 12px !important; }
+          .workplace-gallery { flex-wrap: wrap !important; gap: 12px !important; }
+          .workplace-gallery > div { width: calc(50% - 12px) !important; height: 160px !important; }
+
+          /* blog gallery adjustments */
+          .blog-gallery { gap: 12px !important; padding-bottom: 6px !important; }
+          .blog-card { min-width: 200px !important; height: 200px !important; }
+
+          /* contact form */
+          .contact-form { width: 100% !important; }
+          .contact-form input, .contact-form textarea { font-size: 15px !important; }
+        }
+
+        @media (max-width: 420px) {
+          header h1 { font-size: 20px !important; }
+          header p { font-size: 13px !important; }
+          .workplace-gallery > div { width: 100% !important; }
+        }
+      `}</style>
 
       {/* Hero Section */}
       <header id="home" style={hero}>
@@ -293,458 +394,745 @@ const teams = [
             “Empowering Farmers, Growing Together”
           </h1>
           <p style={{ marginTop: 12, fontSize: 18, color: "#e6edf3" }}>
-            “We provide fair prices and reliable support to farmers, helping their produce reach the right market.”
+            “We provide fair prices and reliable support to farmers, helping
+            their produce reach the right market.”
           </p>
           <div style={{ marginTop: 18 }}>
             <a
               href="#team"
               style={{
-                
                 color: "#08122a",
                 padding: "12px 22px",
                 borderRadius: 8,
                 textDecoration: "none",
                 fontWeight: 700,
               }}
-            
-            >
-              
-            </a>
+            ></a>
           </div>
 
           <div style={statsContainer}>
             <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>{formatNumber(happyCustomers)}+</div>
-              <div style={{ color: "#6b7280", marginTop: 6 }}>Happy Customers</div>
+              <div style={{ fontSize: 20, fontWeight: 700 }}>
+                {formatNumber(happyCustomers)}+
+              </div>
+              <div style={{ color: "#6b7280", marginTop: 6 }}>
+                Happy Customers
+              </div>
             </div>
             <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>{formatNumber(markets)}+</div>
+              <div style={{ fontSize: 20, fontWeight: 700 }}>
+                {formatNumber(markets)}+
+              </div>
               <div style={{ color: "#6b7280", marginTop: 6 }}>Markets</div>
             </div>
             <div style={stat}>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>{formatNumber(partners)}+</div>
-              <div style={{ color: "#6b7280", marginTop: 6 }}>Trusted Partners</div>
+              <div style={{ fontSize: 20, fontWeight: 700 }}>
+                {formatNumber(partners)}+
+              </div>
+              <div style={{ color: "#6b7280", marginTop: 6 }}>
+                Trusted Partners
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* OUR VALUES SECTION */}
-<section id="values" style={{ padding: "60px 20px", textAlign: "center", backgroundColor: "#f9fafb" }}>
-  <div style={{ maxWidth: 900, margin: "0 auto" }}>
-    <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 16, color: "#1e293b" }}>
-      We Believe in Trust, Fairness & Growth
-    </h2>
-    <p style={{ fontSize: 18, color: "#475569", lineHeight: 1.8 }}>
-      AadatDukan Pvt. Ltd. stands on the values of <strong>Trust, Fairness, and Sustainable Growth</strong>.  
-      We ensure that farmers receive fair prices for their hard work while buyers get the best quality produce.  
-      Our vision is to build transparent, long-term relationships that empower both farmers and markets to thrive together.
-    </p>
-  </div>
-</section>
+      <section
+        id="values"
+        style={{
+          padding: "60px 20px",
+          textAlign: "center",
+          backgroundColor: "#f9fafb",
+        }}
+      >
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h2
+            style={{
+              fontSize: 32,
+              fontWeight: 700,
+              marginBottom: 16,
+              color: "#1e293b",
+            }}
+          >
+            We Believe in Trust, Fairness & Growth
+          </h2>
+          <p style={{ fontSize: 18, color: "#475569", lineHeight: 1.8 }}>
+            AadatDukan Pvt. Ltd. stands on the values of{" "}
+            <strong>Trust, Fairness, and Sustainable Growth</strong>. We ensure
+            that farmers receive fair prices for their hard work while buyers
+            get the best quality produce. Our vision is to build transparent,
+            long-term relationships that empower both farmers and markets to
+            thrive together.
+          </p>
+        </div>
+      </section>
 
- {/* Culture / About Split Section */}
+      {/* Culture / About Split Section */}
       <section id="about" style={{ padding: "0", margin: 0 }}>
         <div style={{ display: "flex", flexWrap: "wrap", minHeight: 420 }}>
           {/* Left: dark background with image and heading */}
-          <div style={{ flex: "1 1 540px", minHeight: 420, backgroundImage: `linear-gradient(rgba(2,6,23,0.66), rgba(2,6,23,0.66)), url(/farm.jpeg)`, backgroundSize: "cover", backgroundPosition: "center", color: "#fff", display: "flex", alignItems: "center", padding: "48px" }}>
+          <div
+            style={{
+              flex: "1 1 540px",
+              minHeight: 420,
+              backgroundImage: `linear-gradient(rgba(2,6,23,0.66), rgba(2,6,23,0.66)), url(/farm.jpeg)`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              padding: "48px",
+            }}
+          >
             <div style={{ maxWidth: 640 }}>
-              <h2 style={{ fontSize: 42, lineHeight: 1.05, margin: 0, fontWeight: 800 }}>We Believe in Trust, Fairness & Growth</h2>
-              <p style={{ marginTop: 16, color: "#cbd5e1", fontSize: 16, lineHeight: 1.6 }}>Aadat Dukan strives to build lasting trust with farmers and traders by ensuring fair prices, transparent deals, and sustainable growth for everyone involved.</p>
+              <h2
+                style={{
+                  fontSize: 42,
+                  lineHeight: 1.05,
+                  margin: 0,
+                  fontWeight: 800,
+                }}
+              >
+                We Believe in Trust, Fairness & Growth
+              </h2>
+              <p
+                style={{
+                  marginTop: 16,
+                  color: "#cbd5e1",
+                  fontSize: 16,
+                  lineHeight: 1.6,
+                }}
+              >
+                Aadat Dukan strives to build lasting trust with farmers and
+                traders by ensuring fair prices, transparent deals, and
+                sustainable growth for everyone involved.
+              </p>
               <div style={{ marginTop: 22 }}>
-                <a href="#contact" style={{ background: "#f59e0b", color: "#08122a", padding: "12px 22px", borderRadius: 6, textDecoration: "none", fontWeight: 700 }}>Get In Touch</a>
+                <a
+                  href="#contact"
+                  style={{
+                    background: "#f59e0b",
+                    color: "#08122a",
+                    padding: "12px 22px",
+                    borderRadius: 6,
+                    textDecoration: "none",
+                    fontWeight: 700,
+                  }}
+                >
+                  Get In Touch
+                </a>
               </div>
             </div>
           </div>
 
           {/* Right: yellow panel with culture bullets */}
-          <div style={{ flex: "0 0 420px", background: "#f8b739", padding: "48px 36px", display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              flex: "0 0 420px",
+              background: "#f8b739",
+              padding: "48px 36px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <div style={{ color: "#08122a", maxWidth: 380 }}>
-              <h3 style={{ fontSize: 32, marginTop: 0, marginBottom: 12 }}>Our Culture</h3>
-              <p style={{ color: "#0b1220", marginBottom: 18 }}> At AadatDukan, we nurture a culture of dedication, integrity, and unity.  
-      Our team works passionately to support farmers and traders alike — ensuring fair trade, transparency, and mutual respect.</p>
+              <h3 style={{ fontSize: 32, marginTop: 0, marginBottom: 12 }}>
+                Our Culture
+              </h3>
+              <p style={{ color: "#0b1220", marginBottom: 18 }}>
+                {" "}
+                At AadatDukan, we nurture a culture of dedication, integrity,
+                and unity. Our team works passionately to support farmers and
+                traders alike — ensuring fair trade, transparency, and mutual
+                respect.
+              </p>
 
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, color: "#0b1220" }}>
-                <li style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}><FaCheckCircle style={{ color: "#0b1220", marginTop: 4 }} /> <div><strong>Work With Purpose</strong> Every grain matters — we put our heart into ensuring farmers’ success and satisfaction.</div></li>
-                <li style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}><FaHeart style={{ color: "#0b1220", marginTop: 4 }} /> <div><strong>Be Fearless</strong> - We embrace innovation in agriculture and trade</div></li>
-                <li style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}><FaBolt style={{ color: "#0b1220", marginTop: 4 }} /> <div><strong>Stay Grounded</strong> - Honesty and simplicity are at our core</div></li>
-                <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><FaSmile style={{ color: "#0b1220", marginTop: 4 }} /> <div><strong>Build Together</strong> - We grow as a team — supporting one another with respect, empathy, and collaboration.</div></li>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: 0,
+                  color: "#0b1220",
+                }}
+              >
+                <li
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "flex-start",
+                    marginBottom: 12,
+                  }}
+                >
+                  <FaCheckCircle style={{ color: "#0b1220", marginTop: 4 }} />{" "}
+                  <div>
+                    <strong>Work With Purpose</strong> Every grain matters — we
+                    put our heart into ensuring farmers’ success and
+                    satisfaction.
+                  </div>
+                </li>
+                <li
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "flex-start",
+                    marginBottom: 12,
+                  }}
+                >
+                  <FaHeart style={{ color: "#0b1220", marginTop: 4 }} />{" "}
+                  <div>
+                    <strong>Be Fearless</strong> - We embrace innovation in
+                    agriculture and trade
+                  </div>
+                </li>
+                <li
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "flex-start",
+                    marginBottom: 12,
+                  }}
+                >
+                  <FaBolt style={{ color: "#0b1220", marginTop: 4 }} />{" "}
+                  <div>
+                    <strong>Stay Grounded</strong> - Honesty and simplicity are
+                    at our core
+                  </div>
+                </li>
+                <li
+                  style={{ display: "flex", gap: 12, alignItems: "flex-start" }}
+                >
+                  <FaSmile style={{ color: "#0b1220", marginTop: 4 }} />{" "}
+                  <div>
+                    <strong>Build Together</strong> - We grow as a team —
+                    supporting one another with respect, empathy, and
+                    collaboration.
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-
-   {/* Team Section */}
-<section id="team" style={{ padding: "60px 20px", background: "#f8fafc" }}>
-  <h3 style={{ textAlign: "center", marginBottom: 6, fontSize: 28, color: "black" }}>
-    Passionate & Experienced Management Team
-  </h3>
-  <p style={{ textAlign: "center", color: "#64748b", fontSize: 18, marginBottom: 40 }}>
-    Trust built over decades of delivering value to our farmers
-  </p>
-
-  <div 
-    style={{ 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
-      flexWrap: "wrap", 
-      gap: "30px"
-    }}
-  >
-    {teams.map((t, idx) => (
-      <div 
-        key={idx} 
-        style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          background: "#ffffff", 
-          borderRadius: 12, 
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)", 
-          padding: "15px 20px",
-          width: 480, // width of each profile block
-          gap: 20
-        }}
+      {/* Team Section */}
+      <section
+        id="team"
+        style={{ padding: "60px 20px", background: "#f8fafc" }}
       >
-        {/* Photo */}
-        <div 
+        <h3
           style={{
-            width: 130,
-            height: 130,
-            borderRadius: "50%",
-            backgroundImage: `url(${t.img})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            flexShrink: 0
+            textAlign: "center",
+            marginBottom: 6,
+            fontSize: 28,
+            color: "black",
           }}
-        />
+        >
+          Passionate & Experienced Management Team
+        </h3>
+        <p
+          style={{
+            textAlign: "center",
+            color: "#64748b",
+            fontSize: 18,
+            marginBottom: 40,
+          }}
+        >
+          Trust built over decades of delivering value to our farmers
+        </p>
 
-        {/* Description beside photo */}
-        <div style={{ flex: 1 }}>
-          <h4 style={{ fontSize: 20, fontWeight: 700, color: "#1e293b", marginBottom: 6 }}>
-            {t.name}
-          </h4>
-          <p style={{ color: "#475569", fontWeight: 600, marginBottom: 6 }}>{t.role}</p>
-          <p style={{ color: "#334155", lineHeight: 1.5 }}>{t.description}</p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: "30px",
+          }}
+        >
+          {teams.map((t, idx) => (
+            <div
+              key={idx}
+              className="team-card-wrapper"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "#ffffff",
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                padding: "15px 20px",
+                gap: 20,
+                width: "100%",
+                maxWidth: 480,
+              }}
+            >
+              {/* Photo */}
+              <div
+                style={{
+                  width: 130,
+                  height: 130,
+                  borderRadius: "50%",
+                  backgroundImage: `url(${t.img})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  flexShrink: 0,
+                }}
+              />
+
+              {/* Description beside photo */}
+              <div style={{ flex: 1 }}>
+                <h4
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: "#1e293b",
+                    marginBottom: 6,
+                  }}
+                >
+                  {t.name}
+                </h4>
+                <p
+                  style={{ color: "#475569", fontWeight: 600, marginBottom: 6 }}
+                >
+                  {t.role}
+                </p>
+                <p style={{ color: "#334155", lineHeight: 1.5 }}>
+                  {t.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    ))}
-  </div>
-</section>
-      <section id="aadat-blog" style={{ background: "#f9fafb", padding: "50px 20px" }}>
-  <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-    <h2 style={{ textAlign: "center", color: "#111827", fontWeight: 800, marginBottom: 30 }}>
-      Our Aadat Dukan – Where Traditions Meet Trade
-    </h2>
+      </section>
+      <section
+        id="aadat-blog"
+        style={{ background: "#f9fafb", padding: "50px 20px" }}
+      >
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <h2
+            style={{
+              textAlign: "center",
+              color: "#111827",
+              fontWeight: 800,
+              marginBottom: 30,
+            }}
+          >
+            Our Aadat Dukan – Where Traditions Meet Trade
+          </h2>
 
-    <p style={{ color: "#374151", fontSize: 18, lineHeight: 1.8, textAlign: "justify", marginBottom: 18 }}>
-      In  <strong>Appa Aadat Dukan</strong>, farmers bring their hard-earned crops like wheat, jwari, tur, mugh, and soyabin.
-      Below are recent moments from the Aadat — browse the images, and watch the short video clip underneath.
-    </p>
+          <p
+            style={{
+              color: "#374151",
+              fontSize: 18,
+              lineHeight: 1.8,
+              textAlign: "justify",
+              marginBottom: 18,
+            }}
+          >
+            In <strong>Appa Aadat Dukan</strong>, farmers bring their
+            hard-earned crops like wheat, jwari, tur, mugh, and soyabin. Below
+            are recent moments from the Aadat — browse the images, and watch the
+            short video clip underneath.
+          </p>
 
-    {/* Dynamic horizontal image strip (cards) */}
-    <>
-      <style>{`
+          {/* Dynamic horizontal image strip (cards) */}
+          <>
+            <style>{`
         .blog-gallery { scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
         .blog-gallery::-webkit-scrollbar { display: none; }
         .blog-card { scroll-snap-align: center; }
       `}</style>
-      <div ref={galleryRef} className="blog-gallery" style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8, marginBottom: 18 }}>
-      {blogImages.map((src, i) => {
-        const isActive = i === activeIdx;
-        return (
+            <div
+              ref={galleryRef}
+              className="blog-gallery"
+              style={{
+                display: "flex",
+                gap: 16,
+                overflowX: "auto",
+                paddingBottom: 8,
+                marginBottom: 18,
+              }}
+            >
+              {blogImages.map((src, i) => {
+                const isActive = i === activeIdx;
+                return (
+                  <div
+                    key={i}
+                    data-idx={i}
+                    className="blog-card"
+                    style={{
+                      minWidth: isActive ? 300 : 200,
+                      height: isActive ? 340 : 240,
+                      borderRadius: 12,
+                      overflow: "hidden",
+                      flex: "0 0 auto",
+                      boxShadow: isActive
+                        ? "0 12px 40px rgba(2,6,23,0.28)"
+                        : "0 8px 30px rgba(2,6,23,0.12)",
+                      transform: isActive
+                        ? "translateY(-8px) scale(1.12)"
+                        : "translateY(0) scale(1)",
+                      transition: "all 300ms ease",
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
+                      position: "relative",
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => {
+                      const container = galleryRef.current;
+                      const card = container.querySelector(`[data-idx='${i}']`);
+                      if (card) {
+                        card.scrollIntoView({
+                          behavior: "smooth",
+                          inline: "center",
+                          block: "nearest",
+                        });
+                        setActiveIdx(i);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        const container = galleryRef.current;
+                        const card = container.querySelector(
+                          `[data-idx='${i}']`,
+                        );
+                        if (card) {
+                          card.scrollIntoView({
+                            behavior: "smooth",
+                            inline: "center",
+                            block: "nearest",
+                          });
+                          setActiveIdx(i);
+                        }
+                      }
+                    }}
+                  >
+                    <img
+                      src={src}
+                      alt={`blog-${i + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+                    {/* overlay label removed as requested */}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+          <br />
+          <br />
+
+          {/* Video and info: video left, info right */}
           <div
-            key={i}
-            data-idx={i}
-            className="blog-card"
             style={{
-              minWidth: isActive ? 300 : 200,
-              height: isActive ? 340 : 240,
-              borderRadius: 12,
-              overflow: "hidden",
-              flex: "0 0 auto",
-              boxShadow: isActive ? "0 12px 40px rgba(2,6,23,0.28)" : "0 8px 30px rgba(2,6,23,0.12)",
-              transform: isActive ? "translateY(-8px) scale(1.12)" : "translateY(0) scale(1)",
-              transition: "all 300ms ease",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
-              position: "relative",
-            }}
-            tabIndex={0}
-            role="button"
-            onClick={() => {
-              const container = galleryRef.current;
-              const card = container.querySelector(`[data-idx='${i}']`);
-              if (card) {
-                card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                setActiveIdx(i);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                const container = galleryRef.current;
-                const card = container.querySelector(`[data-idx='${i}']`);
-                if (card) {
-                  card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                  setActiveIdx(i);
-                }
-              }
+              display: "flex",
+              gap: 24,
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+              marginBottom: 40,
             }}
           >
-            <img src={src} alt={`blog-${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            {/* overlay label removed as requested */}
+            <div style={{ flex: "0 0 420px", maxWidth: 420 }}>
+              <video
+                src="video1.mp4"
+                controls
+                style={{
+                  width: "100%",
+                  height: 260,
+                  objectFit: "cover",
+                  borderRadius: 10,
+                  boxShadow: "0 10px 30px rgba(2,6,23,0.14)",
+                  background: "#000",
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                flex: "1 1 360px",
+                minWidth: 260,
+                color: "#374151",
+                fontSize: 16,
+                lineHeight: 1.75,
+              }}
+            >
+              <h3 style={{ marginTop: 0, fontSize: 22, color: "#0f1724" }}>
+                Aadat Dukan — Traditions & Trade
+              </h3>
+              <p>
+                Farmers bring produce such as wheat, jwari, tur, mugh, and
+                soyabin. Traders and customers interact daily, negotiating
+                prices and ensuring produce reaches the right buyers. Our market
+                is rooted in transparency and respect for farmers' livelihoods.
+              </p>
+              <p>
+                We ensure fair pricing, proper grading, and direct market
+                access. If you'd like to know more about a specific product or
+                day, reach out using the contact section below.
+              </p>
+            </div>
           </div>
-        );
-      })}
-    </div>
-    </>
-    <br />
-    <br />
-
-    {/* Video and info: video left, info right */}
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 40 }}>
-      <div style={{ flex: "0 0 420px", maxWidth: 420 }}>
-        <video
-          src="video1.mp4"
-          controls
-          style={{
-            width: "100%",
-            height: 260,
-            objectFit: "cover",
-            borderRadius: 10,
-            boxShadow: "0 10px 30px rgba(2,6,23,0.14)",
-            background: "#000",
-          }}
-        />
-      </div>
-
-      <div style={{ flex: "1 1 360px", minWidth: 260, color: "#374151", fontSize: 16, lineHeight: 1.75 }}>
-        <h3 style={{ marginTop: 0, fontSize: 22, color: "#0f1724" }}>Aadat Dukan — Traditions & Trade</h3>
-        <p>
-          Farmers bring produce such as wheat, jwari, tur, mugh, and soyabin. Traders and customers interact daily,
-          negotiating prices and ensuring produce reaches the right buyers. Our market is rooted in transparency and respect for farmers' livelihoods.
-        </p>
-        <p>
-          We ensure fair pricing, proper grading, and direct market access. If you'd like to know more about a specific product or day,
-          reach out using the contact section below.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+        </div>
+      </section>
 
       {/* Workplace gallery */}
-      <section id="workplace" style={{ padding: "40px 20px", background: "#f1f5f9" }}>
-  <div style={{ maxWidth: 1300, margin: "0 auto", textAlign: "center" }}>
-    <h3 style={{ color: "black", fontSize: 32, fontWeight: 700, marginBottom: 12 }}>
-      Our Workplace
-    </h3>
-    <p style={{ fontSize: 18, color: "#475569", marginBottom: 40, fontStyle: "italic" }}>
-      “A place where teamwork grows, ideas bloom, and every effort leads to progress.”
-    </p>
+      <section
+        id="workplace"
+        style={{ padding: "40px 20px", background: "#f1f5f9" }}
+      >
+        <div style={{ maxWidth: 1300, margin: "0 auto", textAlign: "center" }}>
+          <h3
+            style={{
+              color: "black",
+              fontSize: 32,
+              fontWeight: 700,
+              marginBottom: 12,
+            }}
+          >
+            Our Workplace
+          </h3>
+          <p
+            style={{
+              fontSize: 18,
+              color: "#475569",
+              marginBottom: 40,
+              fontStyle: "italic",
+            }}
+          >
+            “A place where teamwork grows, ideas bloom, and every effort leads
+            to progress.”
+          </p>
 
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 30,
-        flexWrap: "nowrap",
-      }}
-    >
-      <div
-        style={{
-          height: 300,
-          width: 300,
-          background: `url(/g1.jpeg) center/cover no-repeat`,
-          border: "4px solid #fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        }}
-      />
-      <div
-        style={{
-          height: 300,
-          width: 300,
-          background: `url(/workplace2.jpg) center/cover no-repeat`,
-          border: "4px solid #fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        }}
-      />
-      <div
-        style={{
-          height: 300,
-          width: 300,
-          background: `url(/workplace3.jpg) center/cover no-repeat`,
-          border: "4px solid #fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        }}
-      />
-      <div
-        style={{
-          height: 300,
-          width: 300,
-          background: `url(/download.jpeg) center/cover no-repeat`,
-          border: "4px solid #fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        }}
-      />
-    </div>
-  </div>
-</section>
-
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 30,
+              flexWrap: "nowrap",
+            }}
+          >
+            <div
+              style={{
+                height: 300,
+                width: 300,
+                background: `url(/g1.jpeg) center/cover no-repeat`,
+                border: "4px solid #fff",
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              }}
+            />
+            <div
+              style={{
+                height: 300,
+                width: 300,
+                background: `url(/workplace2.jpg) center/cover no-repeat`,
+                border: "4px solid #fff",
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              }}
+            />
+            <div
+              style={{
+                height: 300,
+                width: 300,
+                background: `url(/workplace3.jpg) center/cover no-repeat`,
+                border: "4px solid #fff",
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              }}
+            />
+            <div
+              style={{
+                height: 300,
+                width: 300,
+                background: `url(/download.jpeg) center/cover no-repeat`,
+                border: "4px solid #fff",
+                borderRadius: 12,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              }}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Contact Section */}
-      
-     <section
-  id="contact"
-  style={{
-    padding: "60px 20px",
-    background: "#0f1724",
-    color: "#e6eef6",
-    fontFamily: "Poppins, sans-serif",
-  }}
->
-  <div
-    style={{
-      maxWidth: 1100,
-      margin: "0 auto",
-      display: "flex",
-      flexWrap: "wrap",
-      gap:60,
-      justifyContent: "space-between",
-    }}
-  >
-    {/* Company Info */}
-    <div style={{ flex: 1, minWidth: 260 }}>
-      <h2 style={{ fontWeight: 800, color: "#fff", fontSize: 22 }}>
-        Appa Aadat Dukan Pvt. Ltd.
-      </h2>
-      <p style={{ marginTop: 10, color: "#94a3b8", lineHeight: 1.6 }}>
-        Delivering excellence and innovation across all our business ventures.
-      </p>
-      <p style={{ marginTop: 20, color: "#64748b", fontSize: 14 }}>
-        © {new Date().getFullYear()} Appa Aadat. All rights reserved.
-      </p>
 
-      {/* Social Media Icons */}
-      <div
+      <section
+        id="contact"
         style={{
-          display: "flex",
-          gap: 18,
-          alignItems: "center",
-          marginTop: 22,
+          padding: "60px 20px",
+          background: "#0f1724",
+          color: "#e6eef6",
+          fontFamily: "Poppins, sans-serif",
         }}
       >
-        <a href="#" style={{ color: "#cbd5e1", fontSize: 20 }}>
-          <FaFacebook />
-        </a>
-        <a href="https://x.com/BiradarPrerana" style={{ color: "#cbd5e1", fontSize: 20 }}>
-          <FaTwitter />
-        </a>
-        <a
-          href="https://www.instagram.com/prerana.v.b/?hl=en"
-          style={{ color: "#cbd5e1", fontSize: 20 }}
-        >
-          <FaInstagram />
-        </a>
-        <a
-          href="https://www.linkedin.com/in/prerana-biradar-a5643b267/"
-          style={{ color: "#cbd5e1", fontSize: 20 }}
-        >
-          <FaLinkedin />
-        </a>
-      </div>
-    </div>
-
-    {/* Quick Links */}
-    <div style={{ flex: 1, minWidth: 180 }}>
-      <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 12 }}>Quick Links</h3>
-      <ul style={{ listStyle: "none", padding: 0, lineHeight: 2, color: "#cbd5e1" }}>
-        <li>Home</li>
-        <li>Capabilities</li>
-        <li>Group Businesses</li>
-        <li>Careers</li>
-        <li>About</li>
-        <li>Contact</li>
-      </ul>
-    </div>
-
-    {/* Contact Details */}
-    <div style={{ flex: 1, minWidth: 180 }}>
-      <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 12 }}>Contact Us</h3>
-      <div style={{ color: "#cbd5e1", lineHeight: 1.8 }}>
-        <strong>Maharashtra (Office ):</strong>
-        <div>Modha Road, Udgir – 413517</div>
-        <strong style={{ display: "block", marginTop: 12 }}>Contact 1:</strong>
-        <div>Virbhadra Biradar : 9168005909</div>
-        <strong style={{ display: "block", marginTop: 12 }}>Contact 2:</strong>
-        <div>Dayanand Biradar : 9021528929</div>
-      </div>
-    </div>
-
-    {/* Contact Form */}
-    <div style={{ flex: 1, minWidth: 300 }}>
-      <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 12 }}>Feedback</h3>
-      <form onSubmit={handleContactSubmit}>
-        <input
-          value={contactName}
-          onChange={(e) => setContactName(e.target.value)}
-          placeholder="Your Name"
+        <div
           style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: 10,
-            borderRadius: 6,
-            border: "1px solid #334155",
-            background: "#1e293b",
-            color: "#e2e8f0",
+            maxWidth: 1100,
+            margin: "0 auto",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 60,
+            justifyContent: "space-between",
           }}
-        />
-        <textarea
-          value={contactMessage}
-          onChange={(e) => setContactMessage(e.target.value)}
-          placeholder="Your Message"
-          rows={5}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: 10,
-            borderRadius: 6,
-            border: "1px solid #334155",
-            background: "#1e293b",
-            color: "#e2e8f0",
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            background: "#f59e0b",
-            color: "#0f172a",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: 6,
-            fontWeight: 700,
-            cursor: "pointer",
-            transition: "background 0.3s",
-          }}
-          onMouseOver={(e) => (e.target.style.background = "#fbbf24")}
-          onMouseOut={(e) => (e.target.style.background = "#f59e0b")}
         >
-          Submit
-        </button>
-      </form>
-    </div>
-  </div>
-</section>
+          {/* Company Info */}
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <h2 style={{ fontWeight: 800, color: "#fff", fontSize: 22 }}>
+              Appa Aadat Dukan Pvt. Ltd.
+            </h2>
+            <p style={{ marginTop: 10, color: "#94a3b8", lineHeight: 1.6 }}>
+              Delivering excellence and innovation across all our business
+              ventures.
+            </p>
+            <p style={{ marginTop: 20, color: "#64748b", fontSize: 14 }}>
+              © {new Date().getFullYear()} Appa Aadat. All rights reserved.
+            </p>
 
+            {/* Social Media Icons */}
+            <div
+              style={{
+                display: "flex",
+                gap: 18,
+                alignItems: "center",
+                marginTop: 22,
+              }}
+            >
+              <a
+                href="https://x.com/BiradarPrerana"
+                style={{ color: "#cbd5e1", fontSize: 20 }}
+              >
+                <FaTwitter />
+              </a>
+              <a
+                href="https://www.instagram.com/prerana.v.b/?hl=en"
+                style={{ color: "#cbd5e1", fontSize: 20 }}
+              >
+                <FaInstagram />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/prerana-biradar-a5643b267/"
+                style={{ color: "#cbd5e1", fontSize: 20 }}
+              >
+                <FaLinkedin />
+              </a>
+            </div>
+          </div>
 
-     
+          {/* Quick Links */}
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 12 }}>
+              Quick Links
+            </h3>
+            <ul
+              className="footer-quick-links"
+              style={{
+                listStyle: "none",
+                padding: 0,
+                lineHeight: 2,
+              }}
+            >
+              <li>
+                <ScrollLink to="home" smooth duration={500} offset={-80} style={{ color: "#cbd5e1", cursor: "pointer" }}>
+                  Home
+                </ScrollLink>
+              </li>
+            
+            
+             
+              <li>
+                <ScrollLink to="about" smooth duration={500} offset={-80} style={{ color: "#cbd5e1", cursor: "pointer" }}>
+                  About
+                </ScrollLink>
+              </li>
+              <li>
+                <ScrollLink to="contact" smooth duration={500} offset={-80} style={{ color: "#cbd5e1", cursor: "pointer" }}>
+                  Contact
+                </ScrollLink>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Details */}
+          <div style={{ flex: 1, minWidth: 180 }}>
+           
+            <div style={{ color: "#cbd5e1", lineHeight: 1.8 }}>
+              <strong>Maharashtra (Office ):</strong>
+              <div>Modha Road, Udgir – 413517</div>
+              <strong style={{ display: "block", marginTop: 12 }}>
+                Contact 1:
+              </strong>
+              <div>Virbhadra Biradar : 9168005909</div>
+              <strong style={{ display: "block", marginTop: 12 }}>
+                Contact 2:
+              </strong>
+              <div>Manmath Biradar : 9359228393 </div>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div style={{ flex: 1, minWidth: 300 }}>
+            <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 12 }}>
+              Contact Us
+            </h3>
+            <form className="contact-form" onSubmit={handleContactSubmit}>
+              <input
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Your Name"
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginBottom: 10,
+                  borderRadius: 6,
+                  border: "1px solid #334155",
+                  background: "#1e293b",
+                  color: "#e2e8f0",
+                }}
+              />
+              <textarea
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+                placeholder="Your Message"
+                rows={5}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  marginBottom: 10,
+                  borderRadius: 6,
+                  border: "1px solid #334155",
+                  background: "#1e293b",
+                  color: "#e2e8f0",
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  background: "#f59e0b",
+                  color: "#0f172a",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: 6,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "background 0.3s",
+                }}
+                onMouseOver={(e) => (e.target.style.background = "#fbbf24")}
+                onMouseOut={(e) => (e.target.style.background = "#f59e0b")}
+              >
+                Submit
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
